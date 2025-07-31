@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spinner Wheel</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+
+    .spinner-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+    }
+
+    .spinner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .pointer {
+      position: absolute;
+      top: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 50px solid transparent;
+      border-right: 50px solid transparent;
+      border-bottom: 57px solid #3c4856;
+      z-index: 5;
+    }
+
+    .center-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background-color: white;
+      z-index: 3;
+    }
+
+    .center-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background-color: #3c4856;
+      color: white;
+      font-weight: bold;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="spinner-container">
+    <div class="pointer"></div>
+    <img id="spinner" class="spinner" src="https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/sOUGLvNfkLdOxtcTixq9/pub/ddH4p9MgQX0MXuUywIrR.png" alt="Spinner Wheel" />
+    <div id="overlay" class="overlay"></div>
+    <div class="center-ring" id="center-ring"></div>
+    <button id="spin-button" class="center-button" onclick="handleButtonClick()">Spin</button>
+  </div>
+
+  <audio id="spin-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_145c4f3f15.mp3"></audio>
+  <audio id="stop-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_44d9bc7c89.mp3"></audio>
+
+  <script>
+    const spinner = document.getElementById("spinner");
+    const overlay = document.getElementById("overlay");
+    const spinButton = document.getElementById("spin-button");
+    const spinSound = document.getElementById("spin-sound");
+    const stopSound = document.getElementById("stop-sound");
+    const centerRing = document.getElementById("center-ring");
+
+    let currentRotation = 0;
+    let spinTimeout;
+    let isSpinning = false;
+
+    const segmentColors = [
+      "#4b74b5", // 0 – פסוקים ומאמרי חז"ל
+      "#66C2a5", // 1 – משיח וגאולה
+      "#3D9970", // 2 – שבת
+      "#01796F", // 3 – דמויות בתנ"ך
+      "#abdda4", // 4 – ימים טובים
+      "#FEE08B", // 5 – מושגים ביהדות
+      "#FDAE61", // 6 – מאורעות בהיסטוריה
+      "#F36C4E", // 7 – תפילות וברכות
+      "#D53E4F"  // 8 – מצוות
+    ];
+
+    function handleButtonClick() {
+      if (!isSpinning) {
+        startSpin();
+      } else {
+        stopEarly();
+      }
+    }
+
+    function startSpin() {
+      isSpinning = true;
+      spinButton.innerText = "Stop";
+      centerRing.style.backgroundColor = "white";
+      overlay.style.boxShadow = "0 0 25px 5px white";
+      spinner.style.boxShadow = "none";
+      spinSound.currentTime = 0;
+      spinSound.play();
+
+      const extraSpins = 5 * 360;
+      const randomAngle = Math.floor(Math.random() * 360);
+      const targetRotation = extraSpins + randomAngle;
+      currentRotation += targetRotation;
+
+      spinner.style.transition = "transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)";
+      overlay.style.transition = "transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)";
+      spinner.style.transform = `rotate(${currentRotation}deg)`;
+      overlay.style.transform = `rotate(${currentRotation}deg)`;
+
+      spinTimeout = setTimeout(() => {
+        const color = getWinningColor(currentRotation);
+        finishSpin(color);
+      }, 5100);
+    }
+
+    function stopEarly() {
+      clearTimeout(spinTimeout);
+
+      const computedStyle = window.getComputedStyle(spinner);
+      const matrix = new DOMMatrix(computedStyle.transform);
+      const currentAngle = Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
+      const normalizedAngle = (currentAngle + 360) % 360;
+      currentRotation = 360 * Math.floor(currentRotation / 360) + (360 - normalizedAngle);
+
+      spinner.style.transition = "none";
+      overlay.style.transition = "none";
+      spinner.style.transform = `rotate(${currentRotation}deg)`;
+      overlay.style.transform = `rotate(${currentRotation}deg)`;
+
+      void spinner.offsetWidth;
+
+      const color = getWinningColor(currentRotation);
+      finishSpin(color);
+    }
+
+    function getWinningColor(rotation) {
+      const angle = (360 - (rotation % 360)) % 360;
+      const segment = Math.floor(angle / 40) % 9;
+      return segmentColors[segment];
+    }
+
+    function finishSpin(color) {
+      spinSound.pause();
+      stopSound.play();
+
+      overlay.style.boxShadow = `0 0 25px 5px ${color}`;
+      centerRing.style.backgroundColor = color;
+
+      spinButton.innerText = "Spin";
+      isSpinning = false;
+    }
+  </script>
+
+</body>
+</html>
