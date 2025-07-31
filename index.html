@@ -4,21 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spinner Wheel</title>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background-color: transparent !important;
-  }
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent !important;
+    }
 
-  body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    font-family: sans-serif;
-  }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+      background: transparent !important;
+    }
 
     .spinner-container {
       position: relative;
@@ -91,17 +92,18 @@
   </style>
 </head>
 <body>
+  <div style="background: transparent !important;">
+    <div class="spinner-container">
+      <div class="pointer"></div>
+      <img id="spinner" class="spinner" src="https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/sOUGLvNfkLdOxtcTixq9/pub/ddH4p9MgQX0MXuUywIrR.png" alt="Spinner Wheel" />
+      <div id="overlay" class="overlay"></div>
+      <div class="center-ring" id="center-ring"></div>
+      <button id="spin-button" class="center-button" onclick="handleButtonClick()">Spin</button>
+    </div>
 
-  <div class="spinner-container">
-    <div class="pointer"></div>
-    <img id="spinner" class="spinner" src="https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/sOUGLvNfkLdOxtcTixq9/pub/ddH4p9MgQX0MXuUywIrR.png" alt="Spinner Wheel" />
-    <div id="overlay" class="overlay"></div>
-    <div class="center-ring" id="center-ring"></div>
-    <button id="spin-button" class="center-button" onclick="handleButtonClick()">Spin</button>
+    <audio id="spin-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_145c4f3f15.mp3"></audio>
+    <audio id="stop-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_44d9bc7c89.mp3"></audio>
   </div>
-
-  <audio id="spin-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_145c4f3f15.mp3"></audio>
-  <audio id="stop-sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_44d9bc7c89.mp3"></audio>
 
   <script>
     const spinner = document.getElementById("spinner");
@@ -189,14 +191,11 @@
     function finishSpin(color) {
       spinSound.pause();
       stopSound.play();
-
       overlay.style.boxShadow = `0 0 25px 5px ${color}`;
       centerRing.style.backgroundColor = color;
-
       spinButton.innerText = "Spin";
       isSpinning = false;
     }
   </script>
-
 </body>
 </html>
