@@ -8,20 +8,17 @@
     html, body {
       margin: 0;
       padding: 0;
-      background-color: transparent !important;
+      background: transparent !important;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      font-family: sans-serif;
     }
 
     .spinner-container {
       position: relative;
       width: 400px;
       height: 400px;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     .spinner {
@@ -160,7 +157,6 @@
 
     function stopEarly() {
       clearTimeout(spinTimeout);
-
       const computedStyle = window.getComputedStyle(spinner);
       const matrix = new DOMMatrix(computedStyle.transform);
       const currentAngle = Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
@@ -187,17 +183,11 @@
     function finishSpin(color) {
       spinSound.pause();
       stopSound.play();
-
       overlay.style.boxShadow = `0 0 25px 5px ${color}`;
       centerRing.style.backgroundColor = color;
-
       spinButton.innerText = "Spin";
       isSpinning = false;
     }
   </script>
-
-  <!-- dummy update to force redeploy -->
-
-
 </body>
 </html>
